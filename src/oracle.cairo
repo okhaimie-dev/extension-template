@@ -102,6 +102,7 @@ pub mod Oracle {
     use core::num::traits::{Zero};
     use core::option::{OptionTrait};
     use core::traits::{Into, TryInto};
+    use ekubo::components::shared_locker::{check_caller_is_core};
     use ekubo::interfaces::core::{
         ICoreDispatcher, ICoreDispatcherTrait, IExtension, SwapParameters, UpdatePositionParameters
     };
@@ -145,7 +146,7 @@ pub mod Oracle {
     impl Internal of InternalTrait {
         fn check_caller_is_core(self: @ContractState) -> ICoreDispatcher {
             let core = self.core.read();
-            assert(core.contract_address == get_caller_address(), 'CALLER_NOT_CORE');
+            check_caller_is_core(core);
             core
         }
 
