@@ -11,4 +11,10 @@ name = "ekubo_extension"
 version = "0.1.0"
 dependencies = [
  "ekubo",
+ "snforge_std",
 ]
+
+[[package]]
+name = "snforge_std"
+version = "0.25.0"
+source = "git+https://github.com/foundry-rs/starknet-foundry#74da40441b7bf51582fc053dcc4d4d751bef1f44"

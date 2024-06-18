@@ -98,7 +98,7 @@ pub trait IOracle<TStorage> {
 
 // This extension can be used with pools to track the liquidity-seconds per liquidity over time. This measure can be used to incentive positions in this pool.
 #[starknet::contract]
-mod Oracle {
+pub mod Oracle {
     use core::num::traits::{Zero};
     use core::option::{OptionTrait};
     use core::traits::{Into, TryInto};
