@@ -126,6 +126,7 @@ pub mod Oracle {
         core
             .set_call_points(
                 CallPoints {
+                    before_initialize_pool: true,
                     after_initialize_pool: false,
                     // in order to record the seconds that have passed / liquidity
                     before_swap: true,
@@ -134,6 +135,8 @@ pub mod Oracle {
                     // the same as above
                     before_update_position: true,
                     after_update_position: false,
+                    before_collect_fees: false,
+                    after_collect_fees: false,
                 }
             );
     }

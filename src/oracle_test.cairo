@@ -1,4 +1,4 @@
-use snforge_std::{ declare, ContractClassTrait };
+use snforge_std::{declare, ContractClassTrait};
 use core::num::traits::{Zero};
 use core::option::{OptionTrait};
 use core::traits::{TryInto};
@@ -19,9 +19,11 @@ use starknet::{
 
 
 fn deploy_oracle(core: ICoreDispatcher) -> IExtensionDispatcher {
-    let contract = declare("Oracle").unwrap();
+    let contract = declare("Oracle").expect('Oracle Contract Unwrap');
     // Alternatively we could use `deploy_syscall` here
-    let (contract_address, _) = contract.deploy(@array![core.contract_address.into()]).unwrap();
+    let (contract_address, _) = contract
+        .deploy(@array![core.contract_address.into()])
+        .expect('Deploy failed');
 
     IExtensionDispatcher { contract_address }
 }
