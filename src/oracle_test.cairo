@@ -84,7 +84,7 @@ fn test_pool_state_packing_round_trip_many_values() {
 }
 
 
-fn core() -> ICoreDispatcher {
+fn ekubo_core() -> ICoreDispatcher {
     ICoreDispatcher {
         contract_address: contract_address_const::<
             0x00000005dd3D2F4429AF886cD1a3b08289DBcEa99A294197E9eB43b0e0325b4b
@@ -111,7 +111,7 @@ fn router() -> IRouterDispatcher {
 fn setup(
     starting_balance: u256, fee: u128, tick_spacing: u128, starting_tick: i129
 ) -> (PoolKey, u256) {
-    let oracle = deploy_oracle(core());
+    let oracle = deploy_oracle(ekubo_core());
     let token_class = declare("TestToken").unwrap();
     let owner = get_contract_address();
     let (tokenA, tokenB) = (
@@ -132,7 +132,7 @@ fn setup(
         extension: oracle.contract_address,
     };
 
-    (pool_key, core().initialize_pool(pool_key, starting_tick))
+    (pool_key, ekubo_core().initialize_pool(pool_key, starting_tick))
 }
 
 #[test]
@@ -145,6 +145,6 @@ fn test_create_oracle_pool() {
     router()
         .swap(
             RouteNode { pool_key, sqrt_ratio_limit: u256 { high: 1, low: 0 }, skip_ahead: 0, },
-            TokenAmount { token: pool_key.token1, amount: i129 { mag: 1, sign: false } }
+            TokenAmount { token: pool_key.token0, amount: i129 { mag: 1, sign: false } }
         );
 }
