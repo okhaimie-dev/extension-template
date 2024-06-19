@@ -10,7 +10,7 @@ use ekubo::types::bounds::{Bounds};
 use ekubo::types::call_points::{CallPoints};
 use ekubo::types::i129::{i129};
 use ekubo::types::keys::{PoolKey, PositionKey};
-use ekubo_extension::oracle::{IOracleDispatcher, IOracleDispatcherTrait, PoolState, Oracle};
+use ekubo_extension::oracle::{IOracleDispatcher, IOracleDispatcherTrait, Oracle};
 use ekubo_extension::test_token::{TestToken, IERC20Dispatcher, IERC20DispatcherTrait};
 use snforge_std::{
     declare, ContractClassTrait, cheat_caller_address, cheat_block_timestamp, CheatSpan,
@@ -40,50 +40,6 @@ fn deploy_oracle(core: ICoreDispatcher) -> IExtensionDispatcher {
     IExtensionDispatcher { contract_address }
 }
 
-fn assert_round_trip<T, U, +StorePacking<T, U>, +PartialEq<T>, +Drop<T>, +Copy<T>>(value: T) {
-    assert(StorePacking::<T, U>::unpack(StorePacking::<T, U>::pack(value)) == value, 'roundtrip');
-}
-
-#[test]
-fn test_pool_state_packing_round_trip_many_values() {
-    assert_round_trip(
-        PoolState {
-            block_timestamp_last: Zero::zero(),
-            tick_cumulative_last: Zero::zero(),
-            tick_last: Zero::zero(),
-        }
-    );
-    assert_round_trip(
-        PoolState {
-            block_timestamp_last: 1,
-            tick_cumulative_last: i129 { mag: 2, sign: false },
-            tick_last: i129 { mag: 3, sign: false },
-        }
-    );
-    assert_round_trip(
-        PoolState {
-            block_timestamp_last: 1,
-            tick_cumulative_last: i129 { mag: 2, sign: true },
-            tick_last: i129 { mag: 3, sign: true },
-        }
-    );
-    assert_round_trip(
-        PoolState {
-            block_timestamp_last: 0xffffffffffffffff,
-            tick_cumulative_last: i129 { mag: 0x7fffffffffffffffffffffff, sign: false },
-            tick_last: i129 { mag: 0x7fffffff, sign: false },
-        }
-    );
-    assert_round_trip(
-        PoolState {
-            block_timestamp_last: 0xffffffffffffffff,
-            tick_cumulative_last: i129 { mag: 0x7fffffffffffffffffffffff, sign: true },
-            tick_last: i129 { mag: 0x7fffffff, sign: true },
-        }
-    );
-}
-
-
 fn ekubo_core() -> ICoreDispatcher {
     ICoreDispatcher {
         contract_address: contract_address_const::<
@@ -108,9 +64,7 @@ fn router() -> IRouterDispatcher {
     }
 }
 
-fn setup(
-    starting_balance: u256, fee: u128, tick_spacing: u128, starting_tick: i129
-) -> (PoolKey, u256) {
+fn setup(starting_balance: u256, fee: u128, tick_spacing: u128) -> PoolKey {
     let oracle = deploy_oracle(ekubo_core());
     let token_class = declare("TestToken").unwrap();
     let owner = get_contract_address();
@@ -132,15 +86,15 @@ fn setup(
         extension: oracle.contract_address,
     };
 
-    (pool_key, ekubo_core().initialize_pool(pool_key, starting_tick))
+    pool_key
 }
 
 #[test]
 #[fork("mainnet")]
 fn test_create_oracle_pool() {
-    let (pool_key, _starting_price) = setup(
-        starting_balance: 1000, fee: 0, tick_spacing: 100, starting_tick: Zero::zero()
-    );
+    let pool_key = setup(starting_balance: 1000, fee: 0, tick_spacing: 100);
+
+    ekubo_core().initialize_pool(pool_key, Zero::zero());
 
     router()
         .swap(
